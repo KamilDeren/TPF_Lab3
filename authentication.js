@@ -1,5 +1,5 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
@@ -27,9 +27,11 @@ const userSignIn = async () => {
     signInWithPopup(auth, provider).then((result) => {
         const user = result.user;
         console.log(user);
+        injectUserDataIntoForm(user);
     }).catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
+        handleAuthError(errorCode, errorMessage);
     })
 }
 const userSignOut = async () => {
@@ -47,5 +49,24 @@ onAuthStateChanged(auth, (user) => {
         console.log(user);
     }
 })
+
+const injectUserDataIntoForm = (user) => {
+    // Pobierz referencje do pól formularza
+    const firstNameInput = document.getElementById('firstName');
+    const lastNameInput = document.getElementById('lastName');
+    const emailInput = document.getElementById('exampleInputEmail1');
+
+    // Wstrzyknij dane użytkownika do formularza
+    firstNameInput.value = user.displayName ? user.displayName.split(' ')[0] : '';
+    lastNameInput.value = user.displayName ? user.displayName.split(' ')[1] : '';
+    emailInput.value = user.email ? user.email : '';
+}
+
+const handleAuthError = (errorCode, errorMessage) => {
+    // Wyświetl komunikat błędu autentykacji na stronie lub w innym formacie
+    console.error("Authentication error:", errorCode, errorMessage);
+    alert("Authentication error: " + errorMessage);
+}
+
 signInButton.addEventListener("click", userSignIn);
 signOutButton.addEventListener("click", userSignOut);
